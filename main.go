@@ -1,14 +1,17 @@
 package main
 
 import (
+	"bufio"
 	"encoding/csv"
 	"fmt"
 	"log"
 	"os"
+	"strconv"
+	"time"
 )
 
 func main() {
-	fmt.Println("hello world")
+
 	o, err := os.Open("quiz.csv")
 	if err != nil {
 		log.Println(err)
@@ -27,20 +30,32 @@ func main() {
 	}
 
 }
-
 func startQuiz(d [][]string) {
+	ch := make(chan int)
+	var userRes int
 	res := 0
 	for i, qa := range d {
-		var ans string
-
-		fmt.Printf("Q.%d what is %s = ? \nPlease Enter your ans \n",i+1,qa[0])
-		fmt.Scanf("%s", &ans)
-
-		if qa[1] == ans {
-			res++
+		fmt.Printf("Q.%d what is %s = ? \nPlease Enter your ans \n", i+1, qa[0])
+		go getInput(ch)
+		expectedAns, _ := strconv.Atoi(qa[1])
+		select {
+		case userRes = <-ch:
+			fmt.Println("userRes :	", userRes)
+			if userRes == expectedAns {
+				res++
+			}
+		case <-time.After(5 * time.Second):
+			fmt.Println("Times up")
 		}
 	}
-
 	fmt.Println("Result : ", res, "out of", len(d))
 	fmt.Println("Thank you")
+
+}
+
+func getInput(ch chan int) {
+	scanner := bufio.NewScanner(os.Stdin)
+	scanner.Scan()
+	res, _ := strconv.Atoi(scanner.Text())
+	ch <- res
 }
