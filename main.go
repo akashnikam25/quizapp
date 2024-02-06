@@ -19,7 +19,7 @@ func main() {
 	)
 
 	flag.StringVar(&f, "fileName", "problems.csv", "default value of file is problems.csv")
-	flag.IntVar(&t, "timer", 5, "default timer for each ques is 30s")
+	flag.IntVar(&t, "timer", 10, "default timer for each ques is 10s")
 	flag.Parse()
 	fmt.Println("timer	:	", t)
 	o, err := os.Open(f)
