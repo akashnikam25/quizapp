@@ -17,15 +17,19 @@ func main() {
 		f string
 		t int
 	)
-
+    
+	// read command line argument using 
 	flag.StringVar(&f, "fileName", "problems.csv", "default value of file is problems.csv")
 	flag.IntVar(&t, "timer", 10, "default timer for each ques is 10s")
 	flag.Parse()
-	fmt.Println("timer	:	", t)
+
+	//open the file
 	o, err := os.Open(f)
 	if err != nil {
 		log.Println(err)
 	}
+    
+	//read csv data
 	r := csv.NewReader(o)
 	data, _ := r.ReadAll()
 
@@ -40,6 +44,8 @@ func main() {
 	}
 
 }
+
+//startQuiz will print all questios one by one
 func startQuiz(d [][]string, timer time.Duration) {
 
 	ch := make(chan int)
@@ -66,6 +72,7 @@ func startQuiz(d [][]string, timer time.Duration) {
 
 }
 
+//getInput read the answer from console send through channel 
 func getInput(ch chan int) {
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Scan()
