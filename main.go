@@ -8,11 +8,21 @@ import (
 	"os"
 	"strconv"
 	"time"
+
+	flag "github.com/spf13/pflag"
 )
 
 func main() {
+	var (
+		f string
+		t int
+	)
 
-	o, err := os.Open("quiz.csv")
+	flag.StringVar(&f, "fileName", "problems.csv", "default value of file is problems.csv")
+	flag.IntVar(&t, "timer", 5, "default timer for each ques is 30s")
+	flag.Parse()
+	fmt.Println("timer	:	", t)
+	o, err := os.Open(f)
 	if err != nil {
 		log.Println(err)
 	}
@@ -26,17 +36,20 @@ func main() {
 	fmt.Scanf("%d", &c)
 
 	if c == 1 {
-		startQuiz(data)
+		startQuiz(data, time.Duration(t))
 	}
 
 }
-func startQuiz(d [][]string) {
+func startQuiz(d [][]string, timer time.Duration) {
+
 	ch := make(chan int)
 	var userRes int
 	res := 0
 	for i, qa := range d {
 		fmt.Printf("Q.%d what is %s = ? \nPlease Enter your ans \n", i+1, qa[0])
+
 		go getInput(ch)
+
 		expectedAns, _ := strconv.Atoi(qa[1])
 		select {
 		case userRes = <-ch:
@@ -44,7 +57,7 @@ func startQuiz(d [][]string) {
 			if userRes == expectedAns {
 				res++
 			}
-		case <-time.After(5 * time.Second):
+		case <-time.After(timer * time.Second):
 			fmt.Println("Times up")
 		}
 	}
